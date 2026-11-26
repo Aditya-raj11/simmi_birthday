@@ -1,13 +1,13 @@
 import { useRef, useState } from "react";
 
 /**
- * Interactive 3D sealed birthday envelope cover that gently floats,
- * tilts with pointer movement, and unfolds when tapped.
+ * Interactive 3D sealed birthday envelope cover that floats gently,
+ * tilts with pointer or touch movement + dynamic light sheen, and unfolds cleanly.
  */
 export default function EnvelopeScene({ recipientName, isOpening, isFading, onOpen }) {
   const initial = (recipientName.trim()[0] || "S").toUpperCase();
   const wrapperRef = useRef(null);
-  const [tilt, setTilt] = useState({ rx: 0, ry: 0, active: false });
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0, gx: 50, gy: 50, active: false });
 
   function handleKeyDown(e) {
     if (e.key === "Enter" || e.key === " ") {
@@ -21,23 +21,29 @@ export default function EnvelopeScene({ recipientName, isOpening, isFading, onOp
     const el = wrapperRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
     setTilt({
-      rx: Number((-y * 11).toFixed(2)),
-      ry: Number((x * 13).toFixed(2)),
+      rx: Number((-(y - 0.5) * 14).toFixed(2)),
+      ry: Number(((x - 0.5) * 16).toFixed(2)),
+      gx: Math.round(x * 100),
+      gy: Math.round(y * 100),
       active: true,
     });
   }
 
   function resetTilt() {
-    setTilt({ rx: 0, ry: 0, active: false });
+    setTilt({ rx: 0, ry: 0, gx: 50, gy: 50, active: false });
   }
 
-  const bodyTransform = isOpening
+  const bodyStyle = isOpening
     ? undefined
     : tilt.active
-      ? `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) translateY(-4px)`
+      ? {
+          transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) translateY(-6px) scale(1.015)`,
+          "--gx": `${tilt.gx}%`,
+          "--gy": `${tilt.gy}%`,
+        }
       : undefined;
 
   return (
@@ -62,7 +68,8 @@ export default function EnvelopeScene({ recipientName, isOpening, isFading, onOp
         onPointerLeave={resetTilt}
       >
         <div className="envelope-shadow" aria-hidden="true" />
-        <div className="envelope-body" style={{ transform: bodyTransform }}>
+        <div className="envelope-body" style={bodyStyle}>
+          <div className="envelope-glare" aria-hidden="true" />
           <div className="envelope-liner" aria-hidden="true" />
 
           <div className="letter-peek" aria-hidden="true">
@@ -103,10 +110,30 @@ export default function EnvelopeScene({ recipientName, isOpening, isFading, onOp
             <div className="address-block">
               <div className="address-to">Hand-Delivered For</div>
               <div className="address-name">{recipientName}</div>
+              <svg
+                className="address-flourish"
+                viewBox="0 0 180 22"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8 14 C 52 20, 118 4, 172 12"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                />
+              </svg>
             </div>
           </div>
 
           <div className="envelope-flap" aria-hidden="true" />
+
+          {/* Orbiting micro sparkles around the wax seal */}
+          <div className="seal-orbit" aria-hidden="true">
+            <span className="orbit-spark orbit-spark--1">✦</span>
+            <span className="orbit-spark orbit-spark--2">✧</span>
+            <span className="orbit-spark orbit-spark--3">✦</span>
+          </div>
 
           <button
             className="wax-seal"

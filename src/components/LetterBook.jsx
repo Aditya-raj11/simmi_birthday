@@ -48,8 +48,8 @@ const FOLDED_NOTES = [
 ];
 
 /**
- * Multi-page interactive birthday letter with directional page turns,
- * tactile swipe drag, playful banter, stories, notes, and a blow-out candle.
+ * Multi-page interactive birthday letter with motion-choreographed page turns,
+ * animated SVG flourishes & timelines, swipe drag physics, and fireworks.
  */
 export default function LetterBook({
   recipientName,
@@ -69,6 +69,7 @@ export default function LetterBook({
 
   const pillRefs = useRef([]);
   const touchStartRef = useRef(null);
+  const fireworkTimerRef = useRef(null);
 
   useEffect(() => {
     const activePill = pillRefs.current[currentPage];
@@ -78,6 +79,14 @@ export default function LetterBook({
       block: "nearest",
     });
   }, [currentPage]);
+
+  useEffect(() => {
+    return () => {
+      if (fireworkTimerRef.current) {
+        clearTimeout(fireworkTimerRef.current);
+      }
+    };
+  }, []);
 
   const initial = (recipientName.trim()[0] || "S").toUpperCase();
   const activePollReply =
@@ -130,12 +139,12 @@ export default function LetterBook({
 
   function handlePollPick(id) {
     setSelectedPoll(id);
-    onCelebrate(16);
+    onCelebrate(22, "center");
   }
 
   function handleNextReminder() {
     setReminderIndex((prev) => (prev + 1) % CONFIDENCE_REMINDERS.length);
-    onCelebrate(14);
+    onCelebrate(18, "center");
   }
 
   function toggleNote(num) {
@@ -144,7 +153,7 @@ export default function LetterBook({
       const opening = !next.has(num);
       if (opening) {
         next.add(num);
-        onCelebrate(14);
+        onCelebrate(18, "center");
       } else {
         next.delete(num);
       }
@@ -152,11 +161,19 @@ export default function LetterBook({
     });
   }
 
+  function triggerFireworksShow() {
+    onCelebrate(85, "fireworks");
+    if (fireworkTimerRef.current) clearTimeout(fireworkTimerRef.current);
+    fireworkTimerRef.current = setTimeout(() => {
+      onCelebrate(60, "cannons");
+    }, 360);
+  }
+
   function handleCandleClick() {
     const nextState = !candleOut;
     setCandleOut(nextState);
     if (nextState) {
-      onCelebrate(85);
+      triggerFireworksShow();
     }
   }
 
@@ -213,16 +230,37 @@ export default function LetterBook({
           setDragX(0);
         }}
       >
+        {/* Decorative animated corner flourishes */}
+        <svg
+          key={`ornament-${currentPage}`}
+          className="card-ornament card-ornament--tr"
+          viewBox="0 0 64 64"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M10 12 C 30 10, 48 22, 52 52 M24 14 C 38 18, 46 30, 46 44"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+          />
+          <circle cx="52" cy="52" r="2.2" fill="currentColor" />
+        </svg>
+
         {/* PAGE 1: PLAYFUL LATE-WISH / CHIDHANE WALA PAGE */}
         {currentPage === 0 && (
           <div key="page-0" className={pageAnimClass}>
             <div className="page-meta">
               <span className="page-kicker">Page 01 • Before Anything Else</span>
+              <span className="stamp-slam" aria-hidden="true">
+                NOT FORGOTTEN
+              </span>
               <span className="page-num">i / v</span>
             </div>
 
             <h1 className="page-title">
-              Pehle toh… <em>sorry</em> itna late wish karne ke liye.
+              Pehle toh… <em className="em-underline">sorry</em> itna late wish
+              karne ke liye.
             </h1>
 
             <div className="prose">
@@ -272,9 +310,11 @@ export default function LetterBook({
                   </button>
                 ))}
               </div>
-              <div className="poll-reply" aria-live="polite">
-                {activePollReply}
-              </div>
+              {activePollReply && (
+                <div key={selectedPoll} className="poll-reply" aria-live="polite">
+                  {activePollReply}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -288,8 +328,18 @@ export default function LetterBook({
             </div>
 
             <h1 className="page-title">
-              Yaad hai… hum <em>2 mahine pehle</em> ache se baat karna start kiye the?
+              Yaad hai… hum <em className="em-underline">2 mahine pehle</em> ache
+              se baat karna start kiye the?
             </h1>
+
+            {/* Animated 2-month timeline ribbon */}
+            <div className="timeline-strip" aria-hidden="true">
+              <span className="timeline-node">2 Months Ago</span>
+              <div className="timeline-track">
+                <span className="timeline-pulse" />
+              </div>
+              <span className="timeline-node timeline-node--end">Today ✨</span>
+            </div>
 
             <div className="prose">
               <p>
@@ -304,6 +354,8 @@ export default function LetterBook({
             </div>
 
             <div className="tease-box story-box">
+              <span className="box-spark box-spark--1" aria-hidden="true">✦</span>
+              <span className="box-spark box-spark--2" aria-hidden="true">✧</span>
               <p className="tease-quote">
                 &ldquo;Thank you, bahut bada wala thankkk youuuu, dil se thankk
                 youuu ki tu mera aur Saket ka baat karwayi!&rdquo;
@@ -334,7 +386,8 @@ export default function LetterBook({
             </div>
 
             <h1 className="page-title">
-              Why do you keep telling yourself you&apos;re <em>not</em>?
+              Why do you keep telling yourself you&apos;re{" "}
+              <em className="em-underline">not</em>?
             </h1>
 
             <div className="prose">
@@ -356,6 +409,8 @@ export default function LetterBook({
             </div>
 
             <div className="tease-box confidence-box">
+              <span className="box-spark box-spark--1" aria-hidden="true">✦</span>
+              <span className="box-spark box-spark--2" aria-hidden="true">✨</span>
               <p className="tease-quote">
                 You are beautiful, {recipientName} — inside and out.
               </p>
@@ -375,7 +430,7 @@ export default function LetterBook({
               </p>
             </div>
 
-            <div className="mini-poll">
+            <div className="mini-poll reminder-card">
               <p className="mini-poll-q">
                 Birthday reminder #{reminderIndex + 1} of {CONFIDENCE_REMINDERS.length}:
               </p>
@@ -402,7 +457,8 @@ export default function LetterBook({
             </div>
 
             <h1 className="page-title">
-              Happy Birthday, <em>{recipientName}</em> ✨
+              Happy Birthday,{" "}
+              <em className="em-shimmer">{recipientName}</em> ✨
             </h1>
 
             <div className="prose">
@@ -476,6 +532,15 @@ export default function LetterBook({
 
             <div className={`candle-stage${candleOut ? " is-out" : ""}`}>
               <div className="candle-glow" aria-hidden="true" />
+
+              {/* Floating wish sparks around candle */}
+              <div className="candle-sparks" aria-hidden="true">
+                <span className="c-spark c-spark--1">✦</span>
+                <span className="c-spark c-spark--2">✧</span>
+                <span className="c-spark c-spark--3">✦</span>
+                <span className="c-spark c-spark--4">✧</span>
+              </div>
+
               <button
                 className={`candle-btn${candleOut ? " is-out" : ""}`}
                 type="button"
@@ -486,6 +551,7 @@ export default function LetterBook({
                   <div className="flame" aria-hidden="true" />
                   <div className="smoke smoke--one" aria-hidden="true" />
                   <div className="smoke smoke--two" aria-hidden="true" />
+                  <div className="smoke smoke--three" aria-hidden="true" />
                 </div>
                 <div className="wick" aria-hidden="true" />
                 <div className="candle-wax" aria-hidden="true" />
@@ -530,12 +596,12 @@ export default function LetterBook({
               if (currentPage < PAGE_PILLS.length - 1) {
                 onSelectPage(currentPage + 1);
               } else {
-                onCelebrate(60);
+                triggerFireworksShow();
               }
             }}
           >
             {currentPage === PAGE_PILLS.length - 1
-              ? "Celebrate 🎉"
+              ? "Fireworks 🎉"
               : "Next Page →"}
           </button>
         </footer>

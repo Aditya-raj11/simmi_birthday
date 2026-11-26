@@ -48,7 +48,7 @@ export default function App() {
       setCurrentPage(index);
       if (celebrate && index === 3 && !wishCelebratedRef.current) {
         wishCelebratedRef.current = true;
-        confettiRef.current?.launch(48);
+        confettiRef.current?.launch(58, "cannons");
       }
       window.scrollTo({ top: 0, behavior: "smooth" });
     },
@@ -74,7 +74,7 @@ export default function App() {
     if (stage !== "sealed") return;
     clearTimers();
     setStage("opening");
-    confettiRef.current?.launch(22);
+    confettiRef.current?.launch(30, "center");
 
     const t1 = setTimeout(() => {
       setStage("fading");
@@ -127,7 +127,9 @@ export default function App() {
             pageDir={pageDir}
             isEntered={letterEntered}
             onSelectPage={selectPage}
-            onCelebrate={(count) => confettiRef.current?.launch(count)}
+            onCelebrate={(count, origin) =>
+              confettiRef.current?.launch(count, origin)
+            }
             onReplay={handleReplay}
           />
         )}
