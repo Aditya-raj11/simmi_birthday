@@ -1,8 +1,13 @@
+import { useRef, useState } from "react";
+
 /**
- * Interactive 3D sealed birthday envelope cover that opens when tapped.
+ * Interactive 3D sealed birthday envelope cover that gently floats,
+ * tilts with pointer movement, and unfolds when tapped.
  */
 export default function EnvelopeScene({ recipientName, isOpening, isFading, onOpen }) {
   const initial = (recipientName.trim()[0] || "S").toUpperCase();
+  const wrapperRef = useRef(null);
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0, active: false });
 
   function handleKeyDown(e) {
     if (e.key === "Enter" || e.key === " ") {
@@ -10,6 +15,30 @@ export default function EnvelopeScene({ recipientName, isOpening, isFading, onOp
       onOpen();
     }
   }
+
+  function handlePointerMove(e) {
+    if (isOpening || e.pointerType === "touch") return;
+    const el = wrapperRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({
+      rx: Number((-y * 11).toFixed(2)),
+      ry: Number((x * 13).toFixed(2)),
+      active: true,
+    });
+  }
+
+  function resetTilt() {
+    setTilt({ rx: 0, ry: 0, active: false });
+  }
+
+  const bodyTransform = isOpening
+    ? undefined
+    : tilt.active
+      ? `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) translateY(-4px)`
+      : undefined;
 
   return (
     <section
@@ -22,15 +51,18 @@ export default function EnvelopeScene({ recipientName, isOpening, isFading, onOp
       </div>
 
       <div
-        className={`envelope-wrapper${isOpening ? " is-opening" : ""}`}
+        ref={wrapperRef}
+        className={`envelope-wrapper${isOpening ? " is-opening" : ""}${tilt.active ? " is-tilting" : ""}`}
         role="button"
         tabIndex={0}
         aria-label={`Open birthday envelope for ${recipientName}`}
         onClick={onOpen}
         onKeyDown={handleKeyDown}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={resetTilt}
       >
         <div className="envelope-shadow" aria-hidden="true" />
-        <div className="envelope-body">
+        <div className="envelope-body" style={{ transform: bodyTransform }}>
           <div className="envelope-liner" aria-hidden="true" />
 
           <div className="letter-peek" aria-hidden="true">
@@ -81,7 +113,7 @@ export default function EnvelopeScene({ recipientName, isOpening, isFading, onOp
             type="button"
             aria-label="Break wax seal and open letter"
           >
-            {initial}
+            <span className="seal-letter">{initial}</span>
           </button>
         </div>
       </div>

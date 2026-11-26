@@ -48,14 +48,14 @@ const FOLDED_NOTES = [
 ];
 
 /**
- * Multi-page interactive birthday letter with playful late-wish banter,
- * personal stories (Saket & confidence storytelling), birthday wishes,
- * unfoldable paper notes, and a blow-out birthday candle.
+ * Multi-page interactive birthday letter with directional page turns,
+ * tactile swipe drag, playful banter, stories, notes, and a blow-out candle.
  */
 export default function LetterBook({
   recipientName,
   senderName,
   currentPage,
+  pageDir,
   isEntered,
   onSelectPage,
   onCelebrate,
@@ -65,6 +65,7 @@ export default function LetterBook({
   const [reminderIndex, setReminderIndex] = useState(0);
   const [openNotes, setOpenNotes] = useState(() => new Set(["01"]));
   const [candleOut, setCandleOut] = useState(false);
+  const [dragX, setDragX] = useState(0);
 
   const pillRefs = useRef([]);
   const touchStartRef = useRef(null);
@@ -82,23 +83,43 @@ export default function LetterBook({
   const activePollReply =
     POLL_OPTIONS.find((opt) => opt.id === selectedPoll)?.reply || "";
   const progressPct = ((currentPage + 1) / PAGE_PILLS.length) * 100;
+  const pageAnimClass = pageDir === "prev" ? "page page--prev" : "page page--next";
 
   function handleTouchStart(e) {
     if (e.touches.length !== 1) return;
     const t = e.touches[0];
-    touchStartRef.current = { x: t.clientX, y: t.clientY };
+    touchStartRef.current = { x: t.clientX, y: t.clientY, locked: null };
+  }
+
+  function handleTouchMove(e) {
+    const start = touchStartRef.current;
+    if (!start || e.touches.length !== 1) return;
+
+    const t = e.touches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+
+    if (!start.locked && (Math.abs(dx) > 12 || Math.abs(dy) > 12)) {
+      start.locked = Math.abs(dx) > Math.abs(dy) * 1.35 ? "x" : "y";
+    }
+
+    if (start.locked === "x") {
+      const clamped = Math.max(-90, Math.min(90, dx * 0.35));
+      setDragX(clamped);
+    }
   }
 
   function handleTouchEnd(e) {
     const start = touchStartRef.current;
     touchStartRef.current = null;
+    setDragX(0);
     if (!start || e.changedTouches.length !== 1) return;
 
     const end = e.changedTouches[0];
     const dx = end.clientX - start.x;
     const dy = end.clientY - start.y;
 
-    if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy) * 1.8) {
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.6) {
       if (dx < 0 && currentPage < PAGE_PILLS.length - 1) {
         onSelectPage(currentPage + 1);
       } else if (dx > 0 && currentPage > 0) {
@@ -107,13 +128,25 @@ export default function LetterBook({
     }
   }
 
+  function handlePollPick(id) {
+    setSelectedPoll(id);
+    onCelebrate(16);
+  }
+
+  function handleNextReminder() {
+    setReminderIndex((prev) => (prev + 1) % CONFIDENCE_REMINDERS.length);
+    onCelebrate(14);
+  }
+
   function toggleNote(num) {
     setOpenNotes((prev) => {
       const next = new Set(prev);
-      if (next.has(num)) {
-        next.delete(num);
-      } else {
+      const opening = !next.has(num);
+      if (opening) {
         next.add(num);
+        onCelebrate(14);
+      } else {
+        next.delete(num);
       }
       return next;
     });
@@ -123,9 +156,17 @@ export default function LetterBook({
     const nextState = !candleOut;
     setCandleOut(nextState);
     if (nextState) {
-      onCelebrate(75);
+      onCelebrate(85);
     }
   }
+
+  const dragStyle =
+    dragX !== 0
+      ? {
+          transform: `translateX(${dragX}px) rotate(${(dragX * 0.03).toFixed(2)}deg)`,
+          transition: "none",
+        }
+      : undefined;
 
   return (
     <section
@@ -163,12 +204,18 @@ export default function LetterBook({
 
       <article
         className="stationery-card"
+        style={dragStyle}
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onTouchCancel={() => {
+          touchStartRef.current = null;
+          setDragX(0);
+        }}
       >
         {/* PAGE 1: PLAYFUL LATE-WISH / CHIDHANE WALA PAGE */}
         {currentPage === 0 && (
-          <div className="page">
+          <div key="page-0" className={pageAnimClass}>
             <div className="page-meta">
               <span className="page-kicker">Page 01 • Before Anything Else</span>
               <span className="page-num">i / v</span>
@@ -219,7 +266,7 @@ export default function LetterBook({
                     key={opt.id}
                     className={`poll-btn${selectedPoll === opt.id ? " is-picked" : ""}`}
                     type="button"
-                    onClick={() => setSelectedPoll(opt.id)}
+                    onClick={() => handlePollPick(opt.id)}
                   >
                     {opt.label}
                   </button>
@@ -234,7 +281,7 @@ export default function LetterBook({
 
         {/* PAGE 2: OUR STORY (2 MONTHS AGO, SAKET & RINN) */}
         {currentPage === 1 && (
-          <div className="page">
+          <div key="page-1" className={pageAnimClass}>
             <div className="page-meta">
               <span className="page-kicker">Page 02 • Two Months Ago</span>
               <span className="page-num">ii / v</span>
@@ -280,7 +327,7 @@ export default function LetterBook({
 
         {/* PAGE 3: STORYTELLING ON CONFIDENCE & BEAUTY */}
         {currentPage === 2 && (
-          <div className="page">
+          <div key="page-2" className={pageAnimClass}>
             <div className="page-meta">
               <span className="page-kicker">Page 03 • A Truth About You</span>
               <span className="page-num">iii / v</span>
@@ -332,13 +379,13 @@ export default function LetterBook({
               <p className="mini-poll-q">
                 Birthday reminder #{reminderIndex + 1} of {CONFIDENCE_REMINDERS.length}:
               </p>
-              <p className="reminder-text">{CONFIDENCE_REMINDERS[reminderIndex]}</p>
+              <p key={reminderIndex} className="reminder-text">
+                {CONFIDENCE_REMINDERS[reminderIndex]}
+              </p>
               <button
                 className="poll-btn"
                 type="button"
-                onClick={() =>
-                  setReminderIndex((prev) => (prev + 1) % CONFIDENCE_REMINDERS.length)
-                }
+                onClick={handleNextReminder}
               >
                 Read another reminder →
               </button>
@@ -348,7 +395,7 @@ export default function LetterBook({
 
         {/* PAGE 4: HEARTFELT BIRTHDAY WISH + FOLDED NOTES */}
         {currentPage === 3 && (
-          <div className="page">
+          <div key="page-3" className={pageAnimClass}>
             <div className="page-meta">
               <span className="page-kicker">Page 04 • The Celebration</span>
               <span className="page-num">iv / v</span>
@@ -391,7 +438,8 @@ export default function LetterBook({
                         <span className="note-heading">{note.heading}</span>
                       </span>
                       <span className="note-state">
-                        {isOpen ? "Folded / Open" : "Tap to unfold"}
+                        <span>{isOpen ? "Open" : "Unfold"}</span>
+                        <span className="note-chevron" aria-hidden="true">▾</span>
                       </span>
                     </button>
                     <div className="note-body">{note.body}</div>
@@ -409,7 +457,7 @@ export default function LetterBook({
 
         {/* PAGE 5: INTERACTIVE CANDLE & CLOSING */}
         {currentPage === 4 && (
-          <div className="page">
+          <div key="page-4" className={pageAnimClass}>
             <div className="page-meta">
               <span className="page-kicker">Page 05 • Make a Wish</span>
               <span className="page-num">v / v</span>
@@ -426,7 +474,8 @@ export default function LetterBook({
               </p>
             </div>
 
-            <div className="candle-stage">
+            <div className={`candle-stage${candleOut ? " is-out" : ""}`}>
+              <div className="candle-glow" aria-hidden="true" />
               <button
                 className={`candle-btn${candleOut ? " is-out" : ""}`}
                 type="button"
@@ -435,7 +484,8 @@ export default function LetterBook({
               >
                 <div className="flame-wrap">
                   <div className="flame" aria-hidden="true" />
-                  <div className="smoke" aria-hidden="true" />
+                  <div className="smoke smoke--one" aria-hidden="true" />
+                  <div className="smoke smoke--two" aria-hidden="true" />
                 </div>
                 <div className="wick" aria-hidden="true" />
                 <div className="candle-wax" aria-hidden="true" />

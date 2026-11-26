@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import AmbientBackdrop from "./components/AmbientBackdrop.jsx";
 import ConfettiCanvas from "./components/ConfettiCanvas.jsx";
 import EnvelopeScene from "./components/EnvelopeScene.jsx";
 import LetterBook from "./components/LetterBook.jsx";
@@ -23,6 +24,7 @@ export default function App() {
   const [stage, setStage] = useState("sealed"); // "sealed" | "opening" | "fading" | "open"
   const [letterEntered, setLetterEntered] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+  const [pageDir, setPageDir] = useState("next");
   const [sessionKey, setSessionKey] = useState(0);
 
   const confettiRef = useRef(null);
@@ -39,15 +41,19 @@ export default function App() {
     return clearTimers;
   }, [recipientName, clearTimers]);
 
-  const selectPage = useCallback((index, celebrate = true) => {
-    if (index < 0 || index >= TOTAL_PAGES) return;
-    setCurrentPage(index);
-    if (celebrate && index === 3 && !wishCelebratedRef.current) {
-      wishCelebratedRef.current = true;
-      confettiRef.current?.launch(42);
-    }
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+  const selectPage = useCallback(
+    (index, celebrate = true) => {
+      if (index < 0 || index >= TOTAL_PAGES || index === currentPage) return;
+      setPageDir(index > currentPage ? "next" : "prev");
+      setCurrentPage(index);
+      if (celebrate && index === 3 && !wishCelebratedRef.current) {
+        wishCelebratedRef.current = true;
+        confettiRef.current?.launch(48);
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [currentPage]
+  );
 
   useEffect(() => {
     if (stage !== "open") return undefined;
@@ -68,6 +74,7 @@ export default function App() {
     if (stage !== "sealed") return;
     clearTimers();
     setStage("opening");
+    confettiRef.current?.launch(22);
 
     const t1 = setTimeout(() => {
       setStage("fading");
@@ -75,6 +82,7 @@ export default function App() {
 
     const t2 = setTimeout(() => {
       setStage("open");
+      setPageDir("next");
       setCurrentPage(0);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => setLetterEntered(true));
@@ -89,6 +97,7 @@ export default function App() {
     setLetterEntered(false);
     const t = setTimeout(() => {
       setStage("sealed");
+      setPageDir("next");
       setCurrentPage(0);
       wishCelebratedRef.current = false;
       setSessionKey((k) => k + 1);
@@ -98,6 +107,7 @@ export default function App() {
 
   return (
     <>
+      <AmbientBackdrop />
       <ConfettiCanvas ref={confettiRef} />
 
       <main className="stage">
@@ -114,6 +124,7 @@ export default function App() {
             recipientName={recipientName}
             senderName={senderName}
             currentPage={currentPage}
+            pageDir={pageDir}
             isEntered={letterEntered}
             onSelectPage={selectPage}
             onCelebrate={(count) => confettiRef.current?.launch(count)}
