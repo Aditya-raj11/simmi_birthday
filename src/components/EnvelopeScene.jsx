@@ -13,7 +13,7 @@ export default function EnvelopeScene({ recipientName, isOpening, isFading, onOp
 
   return (
     <section
-      className={`envelope-scene${isFading ? " is-fading" : ""}`}
+      className={`envelope-scene${isOpening ? " is-opening" : ""}${isFading ? " is-fading" : ""}`}
       aria-label={`Birthday envelope for ${recipientName}`}
     >
       <div className="arrival-tag">

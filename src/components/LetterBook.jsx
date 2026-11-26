@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const PAGE_PILLS = [
   "1. Wait a sec",
@@ -66,9 +66,46 @@ export default function LetterBook({
   const [openNotes, setOpenNotes] = useState(() => new Set(["01"]));
   const [candleOut, setCandleOut] = useState(false);
 
+  const pillRefs = useRef([]);
+  const touchStartRef = useRef(null);
+
+  useEffect(() => {
+    const activePill = pillRefs.current[currentPage];
+    activePill?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  }, [currentPage]);
+
   const initial = (recipientName.trim()[0] || "S").toUpperCase();
   const activePollReply =
     POLL_OPTIONS.find((opt) => opt.id === selectedPoll)?.reply || "";
+  const progressPct = ((currentPage + 1) / PAGE_PILLS.length) * 100;
+
+  function handleTouchStart(e) {
+    if (e.touches.length !== 1) return;
+    const t = e.touches[0];
+    touchStartRef.current = { x: t.clientX, y: t.clientY };
+  }
+
+  function handleTouchEnd(e) {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start || e.changedTouches.length !== 1) return;
+
+    const end = e.changedTouches[0];
+    const dx = end.clientX - start.x;
+    const dy = end.clientY - start.y;
+
+    if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy) * 1.8) {
+      if (dx < 0 && currentPage < PAGE_PILLS.length - 1) {
+        onSelectPage(currentPage + 1);
+      } else if (dx > 0 && currentPage > 0) {
+        onSelectPage(currentPage - 1);
+      }
+    }
+  }
 
   function toggleNote(num) {
     setOpenNotes((prev) => {
@@ -107,6 +144,9 @@ export default function LetterBook({
           {PAGE_PILLS.map((label, idx) => (
             <button
               key={label}
+              ref={(el) => {
+                pillRefs.current[idx] = el;
+              }}
               className={`page-pill${currentPage === idx ? " is-active" : ""}`}
               type="button"
               onClick={() => onSelectPage(idx)}
@@ -117,7 +157,15 @@ export default function LetterBook({
         </nav>
       </div>
 
-      <article className="stationery-card">
+      <div className="progress-track" aria-hidden="true">
+        <div className="progress-fill" style={{ width: `${progressPct}%` }} />
+      </div>
+
+      <article
+        className="stationery-card"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {/* PAGE 1: PLAYFUL LATE-WISH / CHIDHANE WALA PAGE */}
         {currentPage === 0 && (
           <div className="page">
