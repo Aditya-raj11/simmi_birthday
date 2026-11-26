@@ -3,7 +3,7 @@ import ConfettiCanvas from "./components/ConfettiCanvas.jsx";
 import EnvelopeScene from "./components/EnvelopeScene.jsx";
 import LetterBook from "./components/LetterBook.jsx";
 
-const TOTAL_PAGES = 4;
+const TOTAL_PAGES = 5;
 
 /**
  * Orchestrates the envelope-opening transition, letter pagination,
@@ -16,7 +16,7 @@ export default function App() {
     const from = params.get("from")?.trim();
     return {
       recipientName: to || "Simmi",
-      senderName: from || "Someone who planned a surprise",
+      senderName: from || "Forever in your rinn",
     };
   }, []);
 
@@ -42,7 +42,7 @@ export default function App() {
   const selectPage = useCallback((index, celebrate = true) => {
     if (index < 0 || index >= TOTAL_PAGES) return;
     setCurrentPage(index);
-    if (celebrate && index === 1 && !wishCelebratedRef.current) {
+    if (celebrate && index === 3 && !wishCelebratedRef.current) {
       wishCelebratedRef.current = true;
       confettiRef.current?.launch(42);
     }

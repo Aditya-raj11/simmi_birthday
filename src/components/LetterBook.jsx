@@ -2,9 +2,10 @@ import { useState } from "react";
 
 const PAGE_PILLS = [
   "1. Wait a sec",
-  "2. The Wish",
-  "3. Little Notes",
-  "4. Make a Wish",
+  "2. Our Story",
+  "3. Believe It",
+  "4. The Wish",
+  "5. Make a Wish",
 ];
 
 const POLL_OPTIONS = [
@@ -22,11 +23,17 @@ const POLL_OPTIONS = [
   },
 ];
 
+const CONFIDENCE_REMINDERS = [
+  "You are beautiful — not because someone else says it, par kyunki tumhari presence aur warmth khud bolti hai.",
+  "Stop telling yourself you're not enough. Apne doubts ko apni value decide mat karne do.",
+  "Carry confidence within yourself, Simmi — when you trust yourself, everything about you shines even brighter.",
+];
+
 const FOLDED_NOTES = [
   {
     num: "01",
-    heading: "For the days that feel heavy",
-    body: "Whenever things get overwhelming, pause for a second and remember how far you have already come. You carry yourself with more grace and strength than you give yourself credit for.",
+    heading: "For the days you doubt yourself",
+    body: "Whenever that quiet voice tries to tell you that you aren't good enough or beautiful enough, shut it down immediately. Look at yourself with half the kindness you show everyone else — you are genuinely remarkable.",
   },
   {
     num: "02",
@@ -36,13 +43,14 @@ const FOLDED_NOTES = [
   {
     num: "03",
     heading: "A tiny reminder (just in case)",
-    body: "Chahe wish subah aaye ya thodi der se, you are genuinely appreciated — aaj bhi, aur har roz bhi. Never forget that!",
+    body: "Chahe wish subah aaye ya thodi der se, aur chahe hamari pehli baat sirf 2 mahine pehle hui ho — you are genuinely appreciated, aaj bhi aur har roz bhi!",
   },
 ];
 
 /**
  * Multi-page interactive birthday letter with playful late-wish banter,
- * birthday wishes, unfoldable paper notes, and a blow-out birthday candle.
+ * personal stories (Saket & confidence storytelling), birthday wishes,
+ * unfoldable paper notes, and a blow-out birthday candle.
  */
 export default function LetterBook({
   recipientName,
@@ -54,6 +62,7 @@ export default function LetterBook({
   onReplay,
 }) {
   const [selectedPoll, setSelectedPoll] = useState(null);
+  const [reminderIndex, setReminderIndex] = useState(0);
   const [openNotes, setOpenNotes] = useState(() => new Set(["01"]));
   const [candleOut, setCandleOut] = useState(false);
 
@@ -109,11 +118,12 @@ export default function LetterBook({
       </div>
 
       <article className="stationery-card">
+        {/* PAGE 1: PLAYFUL LATE-WISH / CHIDHANE WALA PAGE */}
         {currentPage === 0 && (
           <div className="page">
             <div className="page-meta">
               <span className="page-kicker">Page 01 • Before Anything Else</span>
-              <span className="page-num">i / iv</span>
+              <span className="page-num">i / v</span>
             </div>
 
             <h1 className="page-title">
@@ -174,11 +184,126 @@ export default function LetterBook({
           </div>
         )}
 
+        {/* PAGE 2: OUR STORY (2 MONTHS AGO, SAKET & RINN) */}
         {currentPage === 1 && (
           <div className="page">
             <div className="page-meta">
-              <span className="page-kicker">Page 02 • The Real Celebration</span>
-              <span className="page-num">ii / iv</span>
+              <span className="page-kicker">Page 02 • Two Months Ago</span>
+              <span className="page-num">ii / v</span>
+            </div>
+
+            <h1 className="page-title">
+              Tumhe pata hai hamari <em>pehli baat</em> kab hui thi?
+            </h1>
+
+            <div className="prose">
+              <p>
+                Socho toh kitna crazy lagta hai — hamari first baat huye abhi
+                bas <strong>2 mahine pehle</strong> ki toh baat hai… aur woh
+                bhi <strong>Saket</strong> ke through!
+              </p>
+              <p>
+                Tab kahan pata tha ki itne kam time mein itni achi bonding ho
+                jayegi. Kuch log life mein bilkul quietly aate hain, aur sirf do
+                mahinon mein aisa lagne lagta hai jaise unse baat karna din ka
+                sabse natural aur comfort wala hissa ban gaya ho.
+              </p>
+            </div>
+
+            <div className="tease-box story-box">
+              <p className="tease-quote">
+                &ldquo;Thank you agaaaiiiinnnnnn, Saket se baat karwaane ke liye!&rdquo;
+              </p>
+              <p className="tease-sub">
+                Sach mein, uss cheez ke liye toh hum tumhare upar rinn mein aa gaye hain 😌🙏
+              </p>
+            </div>
+
+            <div className="prose">
+              <p>
+                Seriously, jis tarah tumne uss waqt help ki aur baat karwayi,
+                that wasn&apos;t a small thing at all — woh rinn toh ab zindagi
+                bhar rahega! So today on your birthday, I just had to bring that
+                little story back and say one more heartfelt thank you.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* PAGE 3: STORYTELLING ON CONFIDENCE & BEAUTY */}
+        {currentPage === 2 && (
+          <div className="page">
+            <div className="page-meta">
+              <span className="page-kicker">Page 03 • A Truth About You</span>
+              <span className="page-num">iii / v</span>
+            </div>
+
+            <h1 className="page-title">
+              Why do you keep telling yourself you&apos;re <em>not</em>?
+            </h1>
+
+            <div className="prose">
+              <p>
+                Ek chhoti si baat hai jo mujhe kaafi time se kehni thi — especially
+                aaj ke din. Kabhi notice kiya hai? Tum doosron ko toh itne aaram
+                se comfort feel kara deti ho, par jab baat khud ki aati hai, you
+                start doubting yourself.
+              </p>
+              <p>
+                It&apos;s like standing in front of a mirror that somehow hides
+                everything lovely about you and only zooms in on imaginary flaws.
+                Jab aas-paas ke log dekhte hain ki tum kitni genuine, warm, aur
+                effortlessly graceful ho — toh phir{" "}
+                <strong>
+                  why do you keep telling yourself that you are not beautiful?
+                </strong>
+              </p>
+            </div>
+
+            <div className="tease-box confidence-box">
+              <p className="tease-quote">
+                You are beautiful, {recipientName} — inside and out.
+              </p>
+              <p className="tease-sub">
+                You have to carry that confidence within yourself! ✨
+              </p>
+            </div>
+
+            <div className="prose">
+              <p>
+                Real beauty kisi filter ya kisi ke approval se nahi banti — it
+                lives in your smile, the honesty in your eyes, the way you care,
+                aur woh sukoon jo tumse baat karke milta hai. So this year,
+                promise yourself you&apos;ll stop shrinking yourself down. Walk
+                with confidence, own your presence, and start seeing yourself the
+                way you truly are.
+              </p>
+            </div>
+
+            <div className="mini-poll">
+              <p className="mini-poll-q">
+                Birthday reminder #{reminderIndex + 1} of {CONFIDENCE_REMINDERS.length}:
+              </p>
+              <p className="reminder-text">{CONFIDENCE_REMINDERS[reminderIndex]}</p>
+              <button
+                className="poll-btn"
+                type="button"
+                onClick={() =>
+                  setReminderIndex((prev) => (prev + 1) % CONFIDENCE_REMINDERS.length)
+                }
+              >
+                Read another reminder →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* PAGE 4: HEARTFELT BIRTHDAY WISH + FOLDED NOTES */}
+        {currentPage === 3 && (
+          <div className="page">
+            <div className="page-meta">
+              <span className="page-kicker">Page 04 • The Celebration</span>
+              <span className="page-num">iv / v</span>
             </div>
 
             <h1 className="page-title">
@@ -187,49 +312,15 @@ export default function LetterBook({
 
             <div className="prose">
               <p>
-                Now that the teasing part is officially out of the way — here is
-                the wish I actually stayed up planning for you.
-              </p>
-              <p>
                 I hope this new year of your life brings you calm, unhurried
                 mornings, the kind of laughter that makes your cheeks hurt, and
                 unexpected good news on days when you need it most.
               </p>
               <p>
                 May you always stay surrounded by people who value your warmth,
-                understand your silence as easily as your words, and cheer loudly
-                for every little win you achieve. Whatever you&apos;ve been
-                quietly hoping and working toward — I hope this is the year it
-                all starts falling effortlessly into place.
-              </p>
-              <p>
-                You deserve a birthday that feels soft, happy, and entirely
-                yours.
-              </p>
-            </div>
-
-            <div className="signature-block">
-              <span className="sig-label">With all the best wishes,</span>
-              <span className="sig-name">{senderName}</span>
-            </div>
-          </div>
-        )}
-
-        {currentPage === 2 && (
-          <div className="page">
-            <div className="page-meta">
-              <span className="page-kicker">Page 03 • Three Paper Slips</span>
-              <span className="page-num">iii / iv</span>
-            </div>
-
-            <h1 className="page-title">
-              Little notes folded just for <em>you</em>.
-            </h1>
-
-            <div className="prose">
-              <p>
-                Tap each note below to unfold it — think of these as tiny chits
-                tucked inside the envelope.
+                cheer loudly for your wins, and never let you forget how special
+                you are. Tap each little slip tucked below whenever you feel
+                like reading them again:
               </p>
             </div>
 
@@ -260,14 +351,20 @@ export default function LetterBook({
                 );
               })}
             </div>
+
+            <div className="signature-block">
+              <span className="sig-label">With all the best wishes,</span>
+              <span className="sig-name">{senderName}</span>
+            </div>
           </div>
         )}
 
-        {currentPage === 3 && (
+        {/* PAGE 5: INTERACTIVE CANDLE & CLOSING */}
+        {currentPage === 4 && (
           <div className="page">
             <div className="page-meta">
-              <span className="page-kicker">Page 04 • Make a Wish</span>
-              <span className="page-num">iv / iv</span>
+              <span className="page-kicker">Page 05 • Make a Wish</span>
+              <span className="page-num">v / v</span>
             </div>
 
             <h1 className="page-title">
@@ -304,15 +401,15 @@ export default function LetterBook({
                 </p>
               ) : (
                 <p className="wish-granted">
-                  Happy Birthday, {recipientName}! May it come true ✨
+                  Happy Birthday, {recipientName}! Stay confident &amp; keep shining ✨
                 </p>
               )}
             </div>
 
             <div className="prose">
               <p className="closing-center">
-                So yes — late wish, extra planning, and a whole lot of good
-                wishes for you today and always.
+                Late wish, a grateful heart, and a whole lot of good wishes for
+                you today and always.
               </p>
             </div>
           </div>
