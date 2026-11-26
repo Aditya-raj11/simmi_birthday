@@ -43,7 +43,7 @@ const FOLDED_NOTES = [
   {
     num: "03",
     heading: "A tiny reminder (just in case)",
-    body: "Chahe wish subah aaye ya thodi der se, aur chahe hamari pehli baat sirf 2 mahine pehle hui ho — you are genuinely appreciated, aaj bhi aur har roz bhi!",
+    body: "Chahe wish subah aaye ya thodi der se, aur chahe humne ache se baat karna sirf 2 mahine pehle start kiya ho — you are genuinely appreciated, aaj bhi aur har roz bhi!",
   },
 ];
 
@@ -193,38 +193,38 @@ export default function LetterBook({
             </div>
 
             <h1 className="page-title">
-              Tumhe pata hai hamari <em>pehli baat</em> kab hui thi?
+              Yaad hai… hum <em>2 mahine pehle</em> ache se baat karna start kiye the?
             </h1>
 
             <div className="prose">
               <p>
-                Socho toh kitna crazy lagta hai — hamari first baat huye abhi
-                bas <strong>2 mahine pehle</strong> ki toh baat hai… aur woh
-                bhi <strong>Saket</strong> ke through!
+                Socho toh kitna accha lagta hai — bas <strong>2 mahine pehle</strong>{" "}
+                hi toh humne ache se baat karna start kiya tha. Tab kahan pata
+                tha ki itne kam time mein itni achi bonding ho jayegi, aur baat
+                karna din ka itna natural aur comfort wala hissa ban jayega.
               </p>
               <p>
-                Tab kahan pata tha ki itne kam time mein itni achi bonding ho
-                jayegi. Kuch log life mein bilkul quietly aate hain, aur sirf do
-                mahinon mein aisa lagne lagta hai jaise unse baat karna din ka
-                sabse natural aur comfort wala hissa ban gaya ho.
+                Par uske alawa bhi ek bahut badi baat hai jo aaj kehni thi…
               </p>
             </div>
 
             <div className="tease-box story-box">
               <p className="tease-quote">
-                &ldquo;Thank you agaaaiiiinnnnnn, Saket se baat karwaane ke liye!&rdquo;
+                &ldquo;Thank you, bahut bada wala thankkk youuuu, dil se thankk
+                youuu ki tu mera aur Saket ka baat karwayi!&rdquo;
               </p>
               <p className="tease-sub">
-                Sach mein, uss cheez ke liye toh hum tumhare upar rinn mein aa gaye hain 😌🙏
+                I am under your rinnnn 😌🙏
               </p>
             </div>
 
             <div className="prose">
               <p>
-                Seriously, jis tarah tumne uss waqt help ki aur baat karwayi,
-                that wasn&apos;t a small thing at all — woh rinn toh ab zindagi
-                bhar rahega! So today on your birthday, I just had to bring that
-                little story back and say one more heartfelt thank you.
+                Seriously, woh 2 mahine pehle ache se baat shuru hona ek taraf,
+                aur tera mera aur Saket ka baat karwaana bilkul next-level help
+                thi. Uss cheez ke liye sach mein dil se bahut bada wala thank you
+                — toh aaj birthday par yeh chhoti si story aur mera{" "}
+                <em>rinn</em> wapas yaad dilaana toh banta tha!
               </p>
             </div>
           </div>
